@@ -1,0 +1,18 @@
+I have not included my authelia.yml and traefik-providers.toml as they reveal a bit more about my infrastructure than I would like. I have included example files.
+
+Also, /data/auth.yml needs to be created on the host persistence directory.
+
+I use something like this:
+
+---
+
+users:
+  admin:
+    password: "<HASH>"
+    email: admin@example.com
+    groups:
+      - admin
+
+  friend:
+    password: "<HASH>"
+    email: friend@example.com

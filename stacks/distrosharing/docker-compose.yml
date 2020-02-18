@@ -1,0 +1,251 @@
+x-transmission-env: &transmission-env
+  PUID: 1000
+  PGID: 1000
+  TZ: Europe/Lisbon
+  TRANSMISSION_HTTP_PORT: 9000
+  TRANSMISSION_CONFIG: /config
+  TRANSMISSION_WATCH: /watch
+  TRANSMISSION_COMPLETE: /downloads/complete
+  TRANSMISSION_INCOMPLETE: /downloads/incomplete
+
+
+version: '3.6'
+services:
+  # transmission (my torrents)
+  transmission-oc:
+    image: tiagoad/transmission
+
+    environment: 
+      << : *transmission-env
+      TRANSMISSION_PEER_PORT: "${PORT_TRANSMISSION_OC}"
+
+    networks:
+      - internet
+      - http
+
+    ports:
+      - target: "${PORT_TRANSMISSION_OC}"
+        published: "${PORT_TRANSMISSION_OC}"
+        protocol: tcp
+        mode: host
+
+    volumes:
+      - ${RAID}/transmission/oc/:/config
+      - ${RAID_ROOT}/downloads/oc:/downloads
+
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.transmission-oc.rule=Host(`transmission-oc.${MAIN_DOMAIN}`)" # host
+        - "traefik.http.services.transmission-oc.loadbalancer.server.port=9000" # port
+        - "traefik.http.routers.transmission-oc.tls.certresolver=le" # let's encrypt
+        - "traefik.http.routers.transmission-oc.middlewares=auth@file" # authelia
+
+  # transmission - (other torrents)
+  transmission-archive1:
+    image: tiagoad/transmission
+
+    environment: 
+      << : *transmission-env
+      TRANSMISSION_PEER_PORT: "${PORT_TRANSMISSION_A1}"
+
+    networks:
+      - internet
+      - http
+
+    ports:
+      - target: "${PORT_TRANSMISSION_A1}"
+        published: "${PORT_TRANSMISSION_A1}"
+        protocol: tcp
+        mode: host
+
+    volumes:
+      - ${RAID}/transmission/archive1/:/config
+      - ${NORAID_ROOT}/downloads/archive1:/downloads
+
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.transmission-archive1.rule=Host(`transmission1.${MAIN_DOMAIN}`)" # host
+        - "traefik.http.services.transmission-archive1.loadbalancer.server.port=9000" # port
+        - "traefik.http.routers.transmission-archive1.tls.certresolver=le" # let's encrypt
+        - "traefik.http.routers.transmission-archive1.middlewares=auth@file" # authelia
+
+  # sabnzbd (usenet download)
+  sabnzbd:
+    image: linuxserver/sabnzbd
+
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Europe/Lisbon
+
+    networks:
+      - internet
+      - http
+
+    volumes:
+      - ${RAID}/usenet/sabnzbd:/config
+      - ${NORAID_ROOT}/downloads/sabnzbd:/downloads
+
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.sabnzbd.rule=Host(`sabnzbd.${MAIN_DOMAIN}`)" # host
+        - "traefik.http.services.sabnzbd.loadbalancer.server.port=8080" # port
+        - "traefik.http.routers.sabnzbd.tls.certresolver=le" # let's encrypt
+        - "traefik.http.routers.sabnzbd.middlewares=auth@file" # authelia
+
+  # hydra2 (indexers)
+  hydra2:
+    image: linuxserver/hydra2
+
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Europe/Lisbon
+
+    networks:
+      - internet
+      - http
+
+    volumes:
+      - ${RAID}/usenet/hydra2:/config
+      - ${NORAID_ROOT}/downloads/sabnzbd:/downloads
+
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.hydra2.rule=Host(`hydra2.${MAIN_DOMAIN}`)" # host
+        - "traefik.http.services.hydra2.loadbalancer.server.port=5076" # port
+        - "traefik.http.routers.hydra2.tls.certresolver=le" # let's encrypt
+        - "traefik.http.routers.hydra2.middlewares=auth@file" # authelia
+
+  # sonarr (tv)
+  sonarr:
+    image: linuxserver/sonarr
+
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Europe/Lisbon
+
+    networks:
+      - internet
+      - http
+
+    volumes:
+      - ${RAID}/usenet/sonarr:/config
+      - ${NORAID_ROOT}/downloads/sabnzbd:/downloads
+      - /etc/localtime:/etc/localtime:ro
+
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.sonarr.rule=Host(`sonarr.${MAIN_DOMAIN}`)" # host
+        - "traefik.http.services.sonarr.loadbalancer.server.port=8989" # port
+        - "traefik.http.routers.sonarr.tls.certresolver=le" # let's encrypt
+        - "traefik.http.routers.sonarr.middlewares=auth@file" # authelia
+
+  # sonarr (tv)
+  radarr:
+    image: linuxserver/radarr
+
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Europe/Lisbon
+
+    networks:
+      - internet
+      - http
+
+    volumes:
+      - ${RAID}/usenet/radarr:/config
+      - ${NORAID_ROOT}/downloads/sabnzbd:/downloads
+      - /etc/localtime:/etc/localtime:ro
+
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.radarr.rule=Host(`radarr.${MAIN_DOMAIN}`)" # host
+        - "traefik.http.services.radarr.loadbalancer.server.port=7878" # port
+        - "traefik.http.routers.radarr.tls.certresolver=le" # let's encrypt
+        - "traefik.http.routers.radarr.middlewares=auth@file" # authelia
+
+  # bazarr (subtitles)
+  bazarr:
+    image: linuxserver/bazarr
+
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: Europe/Lisbon
+
+    networks:
+      - internet
+      - http
+
+    volumes:
+      - ${RAID}/usenet/bazarr:/config
+      - ${NORAID_ROOT}/downloads/sabnzbd:/downloads
+      - /etc/localtime:/etc/localtime:ro
+
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role == manager]
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.bazarr.rule=Host(`bazarr.${MAIN_DOMAIN}`)" # host
+        - "traefik.http.services.bazarr.loadbalancer.server.port=6767" # port
+        - "traefik.http.routers.bazarr.tls.certresolver=le" # let's encrypt
+        - "traefik.http.routers.bazarr.middlewares=auth@file" # authelia
+
+networks:
+  # internet access
+  internet:
+    external: true
+
+  # http traffic network
+  http:
+    external: true

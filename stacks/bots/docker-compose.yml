@@ -1,0 +1,36 @@
+version: '3.6'
+services:
+  mlbot:
+    image: tiagoad/mlbot
+
+    environment:
+      RUN_INTERVAL: 100
+      BOT_DEBUG:
+      BOT_STATE_FILE: /state/status.dat
+      TWITTER_CONSUMER_KEY: "${MLBOT_TWITTER_CONSUMER_KEY}"
+      TWITTER_CONSUMER_SECRET: "${MLBOT_TWITTER_CONSUMER_SECRET}"
+      TWITTER_ACCESS_TOKEN_KEY: "${MLBOT_TWITTER_ACCESS_TOKEN_KEY}"
+      TWITTER_ACCESS_TOKEN_SECRET: "${MLBOT_TWITTER_ACCESS_TOKEN_SECRET}"
+      TELEGRAM_KEY: "${MLBOT_TELEGRAM_KEY}"
+      TELEGRAM_DESTINATION: "${MLBOT_TELEGRAM_DESTINATION}"
+
+    volumes:
+      - ${RAID}/mlbot:/state
+      
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.role == manager
+  
+
+networks:
+  # internet access
+  internet:
+    external: true
+
+  # http traffic network
+  http:
+    external: true

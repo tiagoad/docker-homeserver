@@ -1,0 +1,103 @@
+version: '3.6'
+
+configs:    
+  authelia_v6:
+    file: authelia.yml
+    
+  traefik_v19:
+    file: traefik.toml
+
+  traefikp_v18:
+    file: traefik-providers.toml
+
+services:
+  traefik:
+    image: traefik:2.1.2
+    
+    command:
+      - "--configFile=/traefik.toml"
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${RAID}/traefik/:/data
+      
+    configs:
+      - source: traefik_v19
+        target: /traefik.toml
+
+      - source: traefikp_v18
+        target: /traefik-providers.toml
+      
+    networks:
+      - internet
+      - http
+
+    ports:
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+        
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
+
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      restart_policy:
+        condition: on-failure
+      update_config:
+        order: stop-first
+
+      labels:
+        # web interface
+        - "traefik.enable=true"
+        - "traefik.http.routers.api.rule=Host(`traefik.${MAIN_DOMAIN}`)" # host
+        - "traefik.http.services.api.loadbalancer.server.port=8080" # port
+        - "traefik.http.routers.api.tls.certresolver=le" # let's encrypt
+        - "traefik.http.routers.api.middlewares=auth@file" # authelia
+        - "traefik.http.routers.api.service=api@internal"
+
+  authelia:
+    image: authelia/authelia:4.3
+    
+    configs:
+      - source: authelia_v6
+        target: /etc/authelia/configuration.yml
+        
+    environment:
+      TZ: Europe/Lisbon
+      AUTHELIA_JWT_SECRET: '${AUTHELIA_JWT_SECRET}'
+      AUTHELIA_SESSION_SECRET: '${AUTHELIA_SESSION_SECRET}'
+    
+    networks:
+      - http
+      
+    volumes:
+      - ${RAID}/authelia/:/data
+      
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.services.authelia.loadbalancer.server.port=80"
+        - "traefik.http.routers.authelia.rule=Host(`auth.${MAIN_DOMAIN}`)"
+        - "traefik.http.routers.authelia.tls.certresolver=le"
+
+networks:
+  # internet access
+  internet:
+    external: true
+
+  # http traffic network
+  http:
+    external: true

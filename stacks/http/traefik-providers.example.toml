@@ -1,0 +1,63 @@
+# ---------- BACKEND -----------
+
+# 
+# Redirect to HTTPS
+#
+
+[[http.services.https-redirect.loadBalancer.servers]]
+  url = "http://localhost/"
+[http.middlewares.https-redirect.redirectscheme]
+  scheme = "https"
+  permanent = true
+[http.routers.https-redirect]
+  rule = "PathPrefix(`/`)"
+  entrypoints = ["http"]
+  middlewares = ["https-redirect"]
+  service = "https-redirect"
+  priority = 1 # lowest priority
+
+#
+# Authelia Middleware (auth)
+#
+
+[http.middlewares.auth.forwardauth]
+  address = "http://authelia/api/verify?rd\u003Dhttps://auth.example.com/"
+
+#
+# Internal only middleware
+#
+
+#[http.middlewares.internal.ipwhitelist]
+#  sourcerange = "10.111.0.0/16"
+
+# --------- SERVICES -----------
+
+#
+# HTTP
+#
+
+[[http.services.some_http_service.loadBalancer.servers]]
+  url = "https://some_http_service.example.com/"
+[http.routers.some_http_service]
+  rule = "Host(`some_http_service.example.com`)"
+  entryPoints = ["https"]
+  middlewares = ["auth"]
+  service = "some_http_service"
+
+  [http.routers.some_http_service.tls]
+    certresolver = "le"
+
+#
+# HTTPS with insecure certificates allowed
+#
+
+[[http.services.some_tls_service.loadBalancer.servers]]
+  url = "http://192.168.1.43:8080/"
+[http.routers.some_tls_service]
+  rule = "Host(`some_tls_service.qqq.pt`)"
+  entryPoints = ["https"]
+  middlewares = ["auth"]
+  service = "some_tls_service"
+
+  [http.routers.some_tls_service.tls]
+    certresolver = "le"

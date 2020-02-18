@@ -1,0 +1,41 @@
+###############################################################
+#                   Authelia configuration                    #
+###############################################################
+
+host: 0.0.0.0
+port: 80
+
+logs_level: trace
+
+totp:
+  issuer: auth.example.com
+
+authentication_backend:
+  file:
+    path: /data/auth.yml
+  
+access_control:
+  default_policy: deny
+  
+  rules:
+    - domain: '*.example.com'
+      subject: "group:admin"
+      policy: one_factor
+      
+session:
+  expiration: 18000 # 5 hours
+  inactivity: 300 # 5 minutes
+  domain: example.com
+
+regulation:
+  max_retries: 3 # more than 3 requests...
+  find_time: 60  # over 1 minute
+  ban_time: 300  # = ban for 5 minutes
+
+storage:
+  local:
+    path: /data/storage.yml
+    
+notifier:
+  filesystem:
+    filename: /data/notifications.txt

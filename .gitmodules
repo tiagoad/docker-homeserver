@@ -1,0 +1,3 @@
+[submodule "images/transmission"]
+	path = images/transmission
+	url = git@github.com:tiagoad/docker-transmission.git

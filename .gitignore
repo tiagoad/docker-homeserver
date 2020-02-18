@@ -1,0 +1,6 @@
+.DS_Store
+
+/production.env
+/secrets.env
+/stacks/http/authelia.yml
+/stacks/http/traefik-providers.toml

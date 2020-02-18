@@ -1,0 +1,29 @@
+[api]
+  dashboard = true
+
+[providers]
+  [providers.docker]
+    network = "http"
+    exposedByDefault = false
+    swarmMode = true
+    swarmModeRefreshSeconds = "10s"
+
+  [providers.file]
+    filename = "/traefik-providers.toml"
+
+[entrypoints]
+  [entrypoints.http]
+    address = ":80"
+
+  [entrypoints.https]
+    address = ":443"
+
+[log]
+  level = "DEBUG"
+
+[certificatesResolvers]
+  [certificatesResolvers.le.acme]
+    email = "tiago@tdias.tech"
+    storage = "/data/acme.json" 
+
+    [certificatesResolvers.le.acme.tlsChallenge]
