@@ -104,9 +104,9 @@ or...
 
 **Useful commands**
   
-  # docker service ps <stack_service> --no-trunc
-  # docker service logs <stack_service> -f
-  # docker service scale <stack_service>=<replicas>
+    # docker service ps <stack_service> --no-trunc
+    # docker service logs <stack_service> -f
+    # docker service scale <stack_service>=<replicas>
 
 **Nothing on ports 80 and 443 (denied connection)**
 
