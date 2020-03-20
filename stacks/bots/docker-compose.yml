@@ -15,15 +15,17 @@ services:
       TELEGRAM_DESTINATION: "${MLBOT_TELEGRAM_DESTINATION}"
 
     volumes:
-      - ${RAID}/mlbot:/state
+      - ${SSD}/bots_mlbot:/state
       
     deploy:
       replicas: 1
-      restart_policy:
-        condition: on-failure
       placement:
         constraints:
-          - node.role == manager
+          - node.labels.machine == dockernas
+      restart_policy:
+        condition: on-failure
+      update_config:
+        order: stop-first
   
 
 networks:
@@ -34,3 +36,7 @@ networks:
   # http traffic network
   http:
     external: true
+
+volumes:
+    mlbot:
+        

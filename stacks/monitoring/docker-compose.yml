@@ -1,0 +1,10 @@
+version: '3.6'
+services: []
+networks:
+  # internet access
+  internet:
+    external: true
+
+  # http traffic network
+  http:
+    external: true

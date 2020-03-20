@@ -33,7 +33,7 @@ services:
       - tcp://tasks.agent:9001 
 
     volumes:
-      - ${RAID}/portainer:/data
+      - ${SSD}/docker_portainer:/data
 
     networks:
       - portainer
@@ -43,10 +43,14 @@ services:
       AGENT_SECRET: "${PORTAINER_AGENT_SECRET}"
 
     deploy:
-      mode: replicated
       replicas: 1
       placement:
-        constraints: [node.role == manager]
+        constraints:
+          - node.labels.machine == dockernas
+      restart_policy:
+        condition: on-failure
+      update_config:
+        order: stop-first
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.portainer.rule=Host(`portainer.${MAIN_DOMAIN}`)" # host

@@ -2,4 +2,4 @@
 
 set -x
 
-mkdir -p "${RAID}/mlbot"
+mkdir -p "${SSD}/bots_mlbot"

@@ -8,15 +8,17 @@ services:
       - http
 
     volumes:
-      - ${RAID}/tdias.tech:/usr/share/nginx/html
+      - ${SSD}/sites_tdias.tech:/usr/share/nginx/html
     
     deploy:
       replicas: 1
-      restart_policy:
-        condition: on-failure
       placement:
         constraints:
-          - node.role == manager
+          - node.labels.machine == dockernas
+      restart_policy:
+        condition: on-failure
+      update_config:
+        order: stop-first
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.tdias.rule=Host(`tdias.tech`)" # host

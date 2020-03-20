@@ -1,3 +1,5 @@
 #!/bin/bash
 
-mkdir -p "${RAID}/portainer"
+set -x
+
+mkdir -p "${SSD}/docker_portainer"

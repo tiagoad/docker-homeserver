@@ -1,6 +1,6 @@
 x-transmission-env: &transmission-env
-  PUID: 1000
-  PGID: 1000
+  PUID: ${PUID}
+  PGID: ${PGID}
   TZ: Europe/Lisbon
   TRANSMISSION_HTTP_PORT: 9000
   TRANSMISSION_CONFIG: /config
@@ -30,16 +30,21 @@ services:
         mode: host
 
     volumes:
-      - ${RAID}/transmission/oc/:/config
-      - ${RAID_ROOT}/downloads/oc:/downloads
+      - ${SSD}/ds_transmission-oc:/config
+      #- ${HDD}/ds_transmission-oc:/downloads
+      - ${HDD}/ds_TMP:/downloads
+
+      - ${HDD}/ds_transmission-oc/complete:/downloads/complete
 
     deploy:
-      mode: replicated
       replicas: 1
+      placement:
+        constraints:
+          - node.labels.machine == dockernas
       restart_policy:
         condition: on-failure
-      placement:
-        constraints: [node.role == manager]
+      update_config:
+        order: stop-first
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.transmission-oc.rule=Host(`transmission-oc.${MAIN_DOMAIN}`)" # host
@@ -48,34 +53,39 @@ services:
         - "traefik.http.routers.transmission-oc.middlewares=auth@file" # authelia
 
   # transmission - (other torrents)
-  transmission-archive1:
+  transmission-archive:
     image: tiagoad/transmission
 
     environment: 
       << : *transmission-env
-      TRANSMISSION_PEER_PORT: "${PORT_TRANSMISSION_A1}"
+      TRANSMISSION_PEER_PORT: "${PORT_TRANSMISSION_ARCHIVE}"
 
     networks:
       - internet
       - http
 
     ports:
-      - target: "${PORT_TRANSMISSION_A1}"
-        published: "${PORT_TRANSMISSION_A1}"
+      - target: "${PORT_TRANSMISSION_ARCHIVE}"
+        published: "${PORT_TRANSMISSION_ARCHIVE}"
         protocol: tcp
         mode: host
 
     volumes:
-      - ${RAID}/transmission/archive1/:/config
-      - ${NORAID_ROOT}/downloads/archive1:/downloads
+      - ${SSD}/ds_transmission-archive:/config
+      #- ${HDD}/ds_transmission-archive:/downloads
+      - ${HDD}/ds_TMP:/downloads
+
+      - ${HDD}/ds_transmission-archive/complete:/downloads/complete
 
     deploy:
-      mode: replicated
       replicas: 1
+      placement:
+        constraints:
+          - node.labels.machine == dockernas
       restart_policy:
         condition: on-failure
-      placement:
-        constraints: [node.role == manager]
+      update_config:
+        order: stop-first
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.transmission-archive1.rule=Host(`transmission1.${MAIN_DOMAIN}`)" # host
@@ -88,8 +98,8 @@ services:
     image: linuxserver/sabnzbd
 
     environment:
-      PUID: 1000
-      PGID: 1000
+      PUID: ${PUID}
+      PGID: ${PGID}
       TZ: Europe/Lisbon
 
     networks:
@@ -97,16 +107,18 @@ services:
       - http
 
     volumes:
-      - ${RAID}/usenet/sabnzbd:/config
-      - ${NORAID_ROOT}/downloads/sabnzbd:/downloads
+      - ${SSD}/ds_sabnzbd:/config
+      - ${HDD}/ds_sabnzbd:/downloads
 
     deploy:
-      mode: replicated
       replicas: 1
+      placement:
+        constraints:
+          - node.labels.machine == dockernas
       restart_policy:
         condition: on-failure
-      placement:
-        constraints: [node.role == manager]
+      update_config:
+        order: stop-first
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.sabnzbd.rule=Host(`sabnzbd.${MAIN_DOMAIN}`)" # host
@@ -119,8 +131,8 @@ services:
     image: linuxserver/hydra2
 
     environment:
-      PUID: 1000
-      PGID: 1000
+      PUID: ${PUID}
+      PGID: ${PGID}
       TZ: Europe/Lisbon
 
     networks:
@@ -128,16 +140,18 @@ services:
       - http
 
     volumes:
-      - ${RAID}/usenet/hydra2:/config
-      - ${NORAID_ROOT}/downloads/sabnzbd:/downloads
+      - ${SSD}/ds_hydra2:/config
+      - ${HDD}/ds_sabnzbd:/downloads
 
     deploy:
-      mode: replicated
       replicas: 1
+      placement:
+        constraints:
+          - node.labels.machine == dockernas
       restart_policy:
         condition: on-failure
-      placement:
-        constraints: [node.role == manager]
+      update_config:
+        order: stop-first
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.hydra2.rule=Host(`hydra2.${MAIN_DOMAIN}`)" # host
@@ -150,8 +164,8 @@ services:
     image: linuxserver/sonarr
 
     environment:
-      PUID: 1000
-      PGID: 1000
+      PUID: ${PUID}
+      PGID: ${PGID}
       TZ: Europe/Lisbon
 
     networks:
@@ -159,17 +173,19 @@ services:
       - http
 
     volumes:
-      - ${RAID}/usenet/sonarr:/config
-      - ${NORAID_ROOT}/downloads/sabnzbd:/downloads
+      - ${SSD}/ds_sonarr:/config
+      - ${HDD}/ds_sabnzbd:/downloads
       - /etc/localtime:/etc/localtime:ro
 
     deploy:
-      mode: replicated
       replicas: 1
+      placement:
+        constraints:
+          - node.labels.machine == dockernas
       restart_policy:
         condition: on-failure
-      placement:
-        constraints: [node.role == manager]
+      update_config:
+        order: stop-first
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.sonarr.rule=Host(`sonarr.${MAIN_DOMAIN}`)" # host
@@ -182,8 +198,8 @@ services:
     image: linuxserver/radarr
 
     environment:
-      PUID: 1000
-      PGID: 1000
+      PUID: ${PUID}
+      PGID: ${PGID}
       TZ: Europe/Lisbon
 
     networks:
@@ -191,17 +207,19 @@ services:
       - http
 
     volumes:
-      - ${RAID}/usenet/radarr:/config
-      - ${NORAID_ROOT}/downloads/sabnzbd:/downloads
+      - ${SSD}/ds_radarr:/config
+      - ${HDD}/ds_sabnzbd:/downloads
       - /etc/localtime:/etc/localtime:ro
 
     deploy:
-      mode: replicated
       replicas: 1
+      placement:
+        constraints:
+          - node.labels.machine == dockernas
       restart_policy:
         condition: on-failure
-      placement:
-        constraints: [node.role == manager]
+      update_config:
+        order: stop-first
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.radarr.rule=Host(`radarr.${MAIN_DOMAIN}`)" # host
@@ -214,8 +232,8 @@ services:
     image: linuxserver/bazarr
 
     environment:
-      PUID: 1000
-      PGID: 1000
+      PUID: ${PUID}
+      PGID: ${PGID}
       TZ: Europe/Lisbon
 
     networks:
@@ -223,17 +241,19 @@ services:
       - http
 
     volumes:
-      - ${RAID}/usenet/bazarr:/config
-      - ${NORAID_ROOT}/downloads/sabnzbd:/downloads
+      - ${SSD}/ds_bazarr:/config
+      - ${HDD}/ds_sabnzbd:/downloads
       - /etc/localtime:/etc/localtime:ro
 
     deploy:
-      mode: replicated
       replicas: 1
+      placement:
+        constraints:
+          - node.labels.machine == dockernas
       restart_policy:
         condition: on-failure
-      placement:
-        constraints: [node.role == manager]
+      update_config:
+        order: stop-first
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.bazarr.rule=Host(`bazarr.${MAIN_DOMAIN}`)" # host

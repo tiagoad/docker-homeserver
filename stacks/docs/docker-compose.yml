@@ -4,24 +4,26 @@ services:
     image: linuxserver/heimdall
 
     volumes:
-      - ${RAID}/heimdall/:/config
+      - ${SSD}/docs_heimdall/:/config
 
     networks:
       - http
       - internet
 
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=${PUID}
+      - PGID=${PGID}
       - TZ=Europe/Lisbon
 
     deploy:
-      mode: replicated
       replicas: 1
+      placement:
+        constraints:
+          - node.labels.machine == dockernas
       restart_policy:
         condition: on-failure
-      placement:
-        constraints: [node.role == manager]
+      update_config:
+        order: stop-first
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.heimdall.rule=Host(`heimdall.${MAIN_DOMAIN}`)" # host

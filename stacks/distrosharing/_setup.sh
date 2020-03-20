@@ -2,25 +2,17 @@
 
 set -x
 
-# torrents
+mkdir -p "${SSD}/ds_bazarr"
+mkdir -p "${SSD}/ds_hydra2"
+mkdir -p "${SSD}/ds_radarr"
+mkdir -p "${SSD}/ds_sabnzbd"
+mkdir -p "${SSD}/ds_sonarr"
+mkdir -p "${SSD}/ds_transmission-archive"
+mkdir -p "${SSD}/ds_transmission-oc"
 
-mkdir -p "${RAID_ROOT}/downloads/oc"
-chown 1000:1000 "${RAID_ROOT}/downloads/oc"
+mkdir -p "${HDD}/ds_transmission-archive"
+mkdir -p "${HDD}/ds_transmission-oc"
+mkdir -p "${HDD}/ds_sabnzbd"
 
-mkdir -p "${NORAID_ROOT}/downloads/archive1"
-chown 1000:1000 "${NORAID_ROOT}/downloads/archive1"
-
-mkdir -p "${RAID}/transmission/oc/"
-mkdir -p "${RAID}/transmission/archive1"
-chown -R 1000:1000 "${RAID}/transmission/"
-
-# usenet
-mkdir -p "${NORAID_ROOT}/downloads/sabnzbd"
-chown -R 1000:1000 "${NORAID_ROOT}/downloads/sabnzbd"
-mkdir -p "${RAID}/usenet/sabnzbd"
-mkdir -p "${RAID}/usenet/hydra2"
-mkdir -p "${RAID}/usenet/sonarr"
-mkdir -p "${RAID}/usenet/radarr"
-mkdir -p "${RAID}/usenet/bazarr"
-
-chown -R 1000:1000 "${RAID}/usenet/"
+chown ${PUID}:${PGID} "${SSD}/ds_"*
+chown ${PUID}:${PGID} "${HDD}/ds_"*
