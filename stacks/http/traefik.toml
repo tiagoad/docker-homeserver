@@ -6,7 +6,7 @@
     network = "http"
     exposedByDefault = false
     swarmMode = true
-    swarmModeRefreshSeconds = "10s"
+    swarmModeRefreshSeconds = "3s"
 
   [providers.file]
     filename = "/traefik-providers.toml"
@@ -19,7 +19,7 @@
     address = ":443"
 
 [log]
-  level = "DEBUG"
+  level = "INFO"
 
 [certificatesResolvers]
   [certificatesResolvers.le.acme]

@@ -1,13 +1,16 @@
 version: '3.6'
 
 configs:    
-  authelia_v6:
+  authelia_v7:
     file: authelia.yml
-    
-  traefik_v19:
+
+  auth_v1:
+    file: auth.yml
+
+  traefik_v21:
     file: traefik.toml
 
-  traefikp_v19:
+  traefikp_v20:
     file: traefik-providers.toml
 
   nginx_v2:
@@ -39,10 +42,10 @@ services:
       - ${SSD}/http_traefik/:/data
       
     configs:
-      - source: traefik_v19
+      - source: traefik_v21
         target: /traefik.toml
 
-      - source: traefikp_v19
+      - source: traefikp_v20
         target: /traefik-providers.toml
       
     networks:
@@ -76,8 +79,11 @@ services:
     image: authelia/authelia:4.3
     
     configs:
-      - source: authelia_v6
+      - source: authelia_v7
         target: /etc/authelia/configuration.yml
+
+      - source: auth_v1
+        target: /data/auth.yml
         
     environment:
       TZ: Europe/Lisbon
@@ -97,6 +103,7 @@ services:
         - "traefik.http.services.authelia.loadbalancer.server.port=80"
         - "traefik.http.routers.authelia.rule=Host(`auth.${MAIN_DOMAIN}`)"
         - "traefik.http.routers.authelia.tls.certresolver=le"
+        - "traefik.docker.network=http_auth"
 
 networks:
   # internet access
