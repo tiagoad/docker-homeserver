@@ -1,0 +1,6 @@
+users:
+  example:
+    password: "$6$rounds=50000$RJmsGz5J+eq15hYL$Ul9OK4rJWcMI0VAcKEQYGWaojRJFZz8Bvpg1j07XV/SSEy3xnrnSBRdBTAOEVEYNxYnrYbAIamL35n2G2C3fM0"
+    email: example@example.com
+    groups:
+      - admin

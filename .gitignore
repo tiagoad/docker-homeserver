@@ -3,4 +3,5 @@
 /production.env
 /secrets.env
 /stacks/http/authelia.yml
+/stacks/http/auth.yml
 /stacks/http/traefik-providers.toml
