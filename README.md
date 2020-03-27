@@ -28,6 +28,8 @@ The following services are configured:
 - http
   - [traefik](https://hub.docker.com/r/_/traefik) (reverse proxy)
   - [authelia](https://hub.docker.com/r/authelia/authelia) (single sign-on)
+- media
+  - ! [airsonic](https://hub.docker.com/r/linuxserver/airsonic) (music streaming)
 - sites
   - [tdias](https://tdias.tech) (personal site nginx placeholder)
 - system
