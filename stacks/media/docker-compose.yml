@@ -1,0 +1,84 @@
+version: '3.6'
+
+configs:    
+  nginx_v17:
+    file: nginx.conf
+
+services:
+  downloads:
+    image: tiagoad/nginx-full
+
+    configs:
+      - source: nginx_v17
+        target: /etc/nginx/nginx.conf
+
+    networks:
+      - http
+
+    volumes:
+      - ${HDD}/ds_transmission-archive:/files/archive:r
+      - ${HDD}/ds_transmission-oc:/files/oc:r
+
+    deploy:
+      <<: *deploy
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.downloads.rule=Host(`downloads.${MAIN_DOMAIN}`)" # host
+        - "traefik.http.services.downloads.loadbalancer.server.port=80" # port
+        - "traefik.http.routers.downloads.tls.certresolver=le" # let's encrypt
+        - "traefik.http.routers.downloads.middlewares=auth@file" # authelia
+
+  archive:
+    image: tiagoad/nginx-full
+
+    configs:
+      - source: nginx_v17
+        target: /etc/nginx/nginx.conf
+
+    networks:
+      - http
+
+    volumes:
+      - ${ARCHIVE}:/files:r
+
+    deploy:
+      <<: *deploy
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.archive.rule=Host(`archive.${MAIN_DOMAIN}`)" # host
+        - "traefik.http.services.archive.loadbalancer.server.port=80" # port
+        - "traefik.http.routers.archive.tls.certresolver=le" # let's encrypt
+        - "traefik.http.routers.archive.middlewares=auth@file" # authelia
+
+  airsonic:
+    image: linuxserver/airsonic
+
+    environment:
+      PUID: ${PUID}
+      PGID: ${PGID}
+      TZ: Europe/Lisbon
+
+    networks:
+      - http
+
+    volumes:
+      - ${SSD}/media_airsonic:/config
+      - ${ARCHIVE}/MEDIA/MUSIC:/music:r
+
+    deploy:
+      <<: *deploy
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.airsonic.rule=Host(`music.${MAIN_DOMAIN}`)" # host
+        - "traefik.http.services.airsonic.loadbalancer.server.port=4040" # port
+        - "traefik.http.routers.airsonic.tls.certresolver=le" # let's encrypt
+        #- "traefik.http.routers.airsonic.middlewares=auth@file" # authelia
+
+networks:
+  # internet access
+  internet:
+    external: true
+
+  # http traffic network
+  http:
+    external: true
