@@ -31,10 +31,7 @@ services:
 
     volumes:
       - ${SSD}/ds_transmission-oc:/config
-      #- ${HDD}/ds_transmission-oc:/downloads
-      - ${HDD}/ds_TMP:/downloads
-
-      - ${HDD}/ds_transmission-oc/complete:/downloads/complete
+      - ${HDD}/ds_transmission-oc:/downloads
 
     deploy:
       <<: *deploy
@@ -65,16 +62,13 @@ services:
 
     volumes:
       - ${SSD}/ds_transmission-archive:/config
-      #- ${HDD}/ds_transmission-archive:/downloads
-      - ${HDD}/ds_TMP:/downloads
-
-      - ${HDD}/ds_transmission-archive/complete:/downloads/complete
+      - ${HDD}/ds_transmission-archive:/downloads
 
     deploy:
       <<: *deploy
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.transmission-archive1.rule=Host(`transmission1.${MAIN_DOMAIN}`)" # host
+        - "traefik.http.routers.transmission-archive1.rule=Host(`transmission.${MAIN_DOMAIN}`)" # host
         - "traefik.http.services.transmission-archive1.loadbalancer.server.port=9000" # port
         - "traefik.http.routers.transmission-archive1.tls.certresolver=le" # let's encrypt
         - "traefik.http.routers.transmission-archive1.middlewares=auth@file" # authelia
