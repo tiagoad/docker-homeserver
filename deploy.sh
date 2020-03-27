@@ -17,7 +17,7 @@ shopt -s dotglob
 
 : "${DDEPLOY_MODE:=ssh}" # ssh, local
 : "${DDEPLOY_SSH_USER:="root"}"
-: "${DDEPLOY_SSH_HOST:="omv.qqq.pt"}"
+: "${DDEPLOY_SSH_HOST:="example.com"}"
 : "${DDEPLOY_SSH_PORT:="22"}"
 : "${DDEPLOY_REMOTE_TMP_DIR:="/opt/compose"}"
 : "${DDEPLOY_SECRETS_FILE:="secrets.env"}"
