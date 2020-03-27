@@ -25,12 +25,7 @@ services:
       - auth
 
     deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.machine == dockernas
-      restart_policy:
-        condition: on-failure
+      <<: *deploy
 
 
   traefik:
@@ -67,15 +62,7 @@ services:
         mode: host
 
     deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.machine == dockernas
-      restart_policy:
-        condition: on-failure
-      update_config:
-        order: stop-first
-
+      <<: *deploy
       labels:
         # web interface
         - "traefik.enable=true"
@@ -104,12 +91,7 @@ services:
       - ${SSD}/http_authelia/:/data
       
     deploy:
-      replicas: 1
-      restart_policy:
-        condition: on-failure
-      placement:
-        constraints:
-          - node.labels.machine == dockernas
+      <<: *deploy
       labels:
         - "traefik.enable=true"
         - "traefik.http.services.authelia.loadbalancer.server.port=80"

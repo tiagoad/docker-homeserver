@@ -16,14 +16,7 @@ services:
       - TZ=Europe/Lisbon
 
     deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.machine == dockernas
-      restart_policy:
-        condition: on-failure
-      update_config:
-        order: stop-first
+      <<: *deploy
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.heimdall.rule=Host(`heimdall.${MAIN_DOMAIN}`)" # host

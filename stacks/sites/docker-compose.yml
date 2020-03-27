@@ -11,14 +11,7 @@ services:
       - ${SSD}/sites_tdias.tech:/usr/share/nginx/html
     
     deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.machine == dockernas
-      restart_policy:
-        condition: on-failure
-      update_config:
-        order: stop-first
+      <<: *deploy
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.tdias.rule=Host(`tdias.tech`)" # host

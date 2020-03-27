@@ -175,7 +175,7 @@ for stack in "${STACKS[@]}"; do
   if [ $TOOL_MODE == "up" ]; then
     # 1. add export to environment file variables and pipe into "." (source)
     # 2. docker stack deploy
-    echo "$remote_env" | sushell . /dev/stdin \&\& cd "$stack" \&\& "./${DDEPLOY_SETUP_FILENAME}" \|\| true \&\& docker stack deploy --prune --compose-file "docker-compose.yml" "$stack"
+    echo "$remote_env" | sushell . /dev/stdin \&\& cd "$stack" \&\& "./${DDEPLOY_SETUP_FILENAME}" \|\| true \&\& cat ../global.yml docker-compose.yml \> docker-compose-merged.yml \&\& docker stack deploy --prune --compose-file "docker-compose-merged.yml" "$stack"
   elif [ $TOOL_MODE == "down" ]; then
     # 1. docker stack rm
     sushell cd "$stack" \&\& docker stack rm "$stack"

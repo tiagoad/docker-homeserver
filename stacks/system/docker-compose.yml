@@ -3,11 +3,4 @@ version: '3.6'
 services:
   # prune every hour
   system-prune:
-    image: docker
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    command: docker system prune --all --force
-    deploy:
-      mode: global
-      restart_policy:
-        delay: 1h
+    <<: *deploy

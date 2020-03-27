@@ -1,0 +1,12 @@
+x-deploy: &deploy
+  replicas: 1
+  placement:
+    constraints:
+      - node.labels.machine == dockernas
+  restart_policy:
+    condition: on-failure
+    delay: 30s
+    max_attempts: 4
+    window: 30s
+  update_config:
+    order: stop-first

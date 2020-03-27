@@ -37,14 +37,7 @@ services:
       - ${HDD}/ds_transmission-oc/complete:/downloads/complete
 
     deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.machine == dockernas
-      restart_policy:
-        condition: on-failure
-      update_config:
-        order: stop-first
+      <<: *deploy
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.transmission-oc.rule=Host(`transmission-oc.${MAIN_DOMAIN}`)" # host
@@ -78,14 +71,7 @@ services:
       - ${HDD}/ds_transmission-archive/complete:/downloads/complete
 
     deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.machine == dockernas
-      restart_policy:
-        condition: on-failure
-      update_config:
-        order: stop-first
+      <<: *deploy
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.transmission-archive1.rule=Host(`transmission1.${MAIN_DOMAIN}`)" # host
@@ -111,14 +97,7 @@ services:
       - ${HDD}/ds_sabnzbd:/downloads
 
     deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.machine == dockernas
-      restart_policy:
-        condition: on-failure
-      update_config:
-        order: stop-first
+      <<: *deploy
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.sabnzbd.rule=Host(`sabnzbd.${MAIN_DOMAIN}`)" # host
@@ -144,14 +123,7 @@ services:
       - ${HDD}/ds_sabnzbd:/downloads
 
     deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.machine == dockernas
-      restart_policy:
-        condition: on-failure
-      update_config:
-        order: stop-first
+      <<: *deploy
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.hydra2.rule=Host(`hydra2.${MAIN_DOMAIN}`)" # host
@@ -178,14 +150,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
 
     deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.machine == dockernas
-      restart_policy:
-        condition: on-failure
-      update_config:
-        order: stop-first
+      <<: *deploy
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.sonarr.rule=Host(`sonarr.${MAIN_DOMAIN}`)" # host
@@ -212,14 +177,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
 
     deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.machine == dockernas
-      restart_policy:
-        condition: on-failure
-      update_config:
-        order: stop-first
+      <<: *deploy
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.radarr.rule=Host(`radarr.${MAIN_DOMAIN}`)" # host
@@ -246,14 +204,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
 
     deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.machine == dockernas
-      restart_policy:
-        condition: on-failure
-      update_config:
-        order: stop-first
+      <<: *deploy
       labels:
         - "traefik.enable=true"
         - "traefik.http.routers.bazarr.rule=Host(`bazarr.${MAIN_DOMAIN}`)" # host
